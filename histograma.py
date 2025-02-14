@@ -3,10 +3,29 @@ import cupy as cp
 import pandas as pd
 import matplotlib.pyplot as plt
 import time
+import requests
 
-# Carregar os dados do Excel
-file_path = r'C:\VALORES UTFPR\data.xlsx'
-data = pd.read_excel(file_path, header=1)
+# URL do arquivo no GitHub
+url = "https://github.com/yvssva/GPU/raw/1edfa0f01862cf2a3b3b625a842ff86495a13a52/data.xlsx"
+output = 'data.xlsx'
+
+# Baixar o arquivo do GitHub
+response = requests.get(url)
+with open(output, 'wb') as file:
+    file.write(response.content)
+
+# Carregar os dados do Excel, usando a segunda linha como cabeçalho
+data = pd.read_excel(output, engine='openpyxl', header=1)
+
+# Verificar se os dados foram carregados corretamente
+if data.empty:
+    print("Erro: Não foi possível carregar os dados do arquivo Excel.")
+else:
+    print("Dados carregados com sucesso.")
+    print("Colunas disponíveis no arquivo:")
+    print(data.columns)
+    print("Primeiras linhas do DataFrame:")
+    print(data.head())
 
 # Lista de colunas que representam os inversores
 inversores = [
@@ -79,5 +98,4 @@ plt.show()
 # Imprimir os tempos de execução
 print("\nTempos de execução:")
 for i, inversor in enumerate(inversores):
-    print(
-        f"{inversor}: CPU = {cpu_times[i]:.6f}s, GPU = {gpu_times[i]:.6f}s, Diferença = {cpu_times[i] - gpu_times[i]:.6f}s")
+    print(f"{inversor}: CPU = {cpu_times[i]:.6f}s, GPU = {gpu_times[i]:.6f}s, Diferença = {cpu_times[i] - gpu_times[i]:.6f}s")
